@@ -1,0 +1,163 @@
+<div class="page">
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner-lg"></div>
+      <p>Loading accounts...</p>
+    </div>
+  } @else {
+
+    <div class="layout">
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-logo">N</div>
+          <span class="brand-name">NeoBank</span>
+        </div>
+        <nav class="sidebar-nav">
+          <a routerLink="/dashboard" class="nav-item">
+            <span class="nav-icon">▦</span> Dashboard
+          </a>
+          <a routerLink="/accounts" class="nav-item nav-item--active">
+            <span class="nav-icon">◈</span> Accounts
+          </a>
+          <a routerLink="/profile" class="nav-item">
+            <span class="nav-icon">◎</span> Profile
+          </a>
+          @if (isAdmin()) {
+            <a routerLink="/admin/users" class="nav-item">
+              <span class="nav-icon">⊞</span> All Users
+              <span class="admin-badge">Admin</span>
+            </a>
+          }
+        </nav>
+        <button class="logout-btn" (click)="logout()">Sign out</button>
+      </aside>
+
+      <!-- Main -->
+      <main class="main-content">
+
+        <div class="page-header">
+          <div>
+            <h1>Accounts</h1>
+            <p>Manage your bank accounts</p>
+          </div>
+          <button class="btn-new"
+            (click)="showForm.set(!showForm())">
+            {{ showForm() ? 'Cancel' : '+ New Account' }}
+          </button>
+        </div>
+
+        <!-- Success / Error banners -->
+        @if (successMsg()) {
+          <div class="success-banner">{{ successMsg() }}</div>
+        }
+        @if (errorMessage()) {
+          <div class="error-banner">{{ errorMessage() }}</div>
+        }
+
+        <!-- Create account form -->
+        @if (showForm()) {
+          <div class="form-card">
+            <h3>Create new account</h3>
+            <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+              <div class="type-selector">
+                <label class="type-option"
+                  [class.type-option--selected]="accountType.value === 'SAVINGS'">
+                  <input
+                    type="radio"
+                    formControlName="accountType"
+                    value="SAVINGS"
+                  />
+                  <div class="type-icon">💰</div>
+                  <div class="type-label">Savings</div>
+                  <div class="type-desc">For personal savings</div>
+                </label>
+                <label class="type-option"
+                  [class.type-option--selected]="accountType.value === 'CURRENT'">
+                  <input
+                    type="radio"
+                    formControlName="accountType"
+                    value="CURRENT"
+                  />
+                  <div class="type-icon">🏦</div>
+                  <div class="type-label">Current</div>
+                  <div class="type-desc">For business use</div>
+                </label>
+              </div>
+              <button
+                type="submit"
+                class="btn-submit"
+                [disabled]="isCreating()">
+                @if (isCreating()) {
+                  <span class="spinner"></span> Creating...
+                } @else {
+                  Create Account
+                }
+              </button>
+            </form>
+          </div>
+        }
+
+        <!-- Total balance summary -->
+        @if (accounts().length > 0) {
+          <div class="summary-card">
+            <div class="summary-label">Total balance across all accounts</div>
+            <div class="summary-amount">
+              ₹{{ getTotalBalance() | number: '1.2-2' }}
+            </div>
+          </div>
+        }
+
+        <!-- Account list -->
+        @if (accounts().length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">🏦</div>
+            <h3>No accounts yet</h3>
+            <p>Create your first bank account to get started</p>
+            <button class="btn-new"
+              (click)="showForm.set(true)">
+              + New Account
+            </button>
+          </div>
+        } @else {
+          <div class="accounts-grid">
+            @for (account of accounts(); track account.id) {
+              <div class="account-card"
+                [class.account-card--current]="
+                  account.accountType === 'CURRENT'"
+                (click)="router.navigate(['/accounts', account.id])">
+
+                <div class="card-header">
+                  <span class="account-type-badge"
+                    [class.badge--current]="
+                      account.accountType === 'CURRENT'">
+                    {{ account.accountType }}
+                  </span>
+                  <span class="card-arrow">→</span>
+                </div>
+
+                <div class="card-balance">
+                  ₹{{ account.balance | number: '1.2-2' }}
+                </div>
+
+                <div class="card-footer">
+                  <span class="account-number">
+                    {{ account.accountNumber }}
+                  </span>
+                  <span class="card-date">
+                    {{ account.createdAt | date: 'medDate' }}
+                  </span>
+                </div>
+
+              </div>
+            }
+          </div>
+        }
+
+      </main>
+    </div>
+  }
+
+</div>

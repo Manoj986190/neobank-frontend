@@ -32,6 +32,11 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/admin-users/admin-users').then((m) => m.AdminUsers),
   },
   {
+    path: 'accounts',
+    canActivate: [authGuard],
+    loadComponent: () => import('./accounts/accounts').then((m) => m.Accounts),
+  },
+  {
     path: '**',
     redirectTo: 'auth/login',
   },

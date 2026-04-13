@@ -39,6 +39,18 @@ export interface UserProfileResponse {
   createdAt: string;
 }
 
+export interface AccountRequest {
+  accountType: 'SAVINGS' | 'CURRENT';
+}
+
+export interface AccountResponse {
+  id: number;
+  accountNumber: string;
+  balance: number;
+  accountType: string;
+  createdAt: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
@@ -85,5 +97,19 @@ export class AuthService {
 
   getAllUsers(): Observable<UserProfileResponse[]> {
     return this.http.get<UserProfileResponse[]>('http://localhost:8080/api/admin/users');
+  }
+
+  private accountUrl = 'http://localhost:8080/api/accounts';
+
+  createAccount(data: AccountRequest): Observable<AccountResponse> {
+    return this.http.post<AccountResponse>(this.accountUrl, data);
+  }
+
+  getAccounts(): Observable<AccountResponse[]> {
+    return this.http.get<AccountResponse[]>(this.accountUrl);
+  }
+
+  getAccountById(id: number): Observable<AccountResponse> {
+    return this.http.get<AccountResponse>(`${this.accountUrl}/${id}`);
   }
 }
