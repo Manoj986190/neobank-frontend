@@ -82,4 +82,8 @@ export class AuthService {
   updateProfile(data: { fullName: string }): Observable<UserProfileResponse> {
     return this.http.put<UserProfileResponse>('http://localhost:8080/api/users/me', data);
   }
+
+  getAllUsers(): Observable<UserProfileResponse[]> {
+    return this.http.get<UserProfileResponse[]>('http://localhost:8080/api/admin/users');
+  }
 }

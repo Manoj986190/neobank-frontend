@@ -1,0 +1,92 @@
+<div class="page">
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner-lg"></div>
+      <p>Loading users...</p>
+    </div>
+  } @else {
+
+    <div class="profile-layout">
+
+      <!-- Sidebar — same as profile -->
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-logo">N</div>
+          <span class="brand-name">NeoBank</span>
+        </div>
+        <nav class="sidebar-nav">
+          <a routerLink="/dashboard" class="nav-item">
+            <span class="nav-icon">▦</span> Dashboard
+          </a>
+          <a routerLink="/profile" class="nav-item">
+            <span class="nav-icon">◎</span> Profile
+          </a>
+          @if (isAdmin()) {
+            <a routerLink="/admin/users" class="nav-item nav-item--active">
+              <span class="nav-icon">⊞</span> All Users
+              <span class="admin-badge">Admin</span>
+            </a>
+          }
+        </nav>
+        <button class="logout-btn" (click)="logout()">Sign out</button>
+      </aside>
+
+      <!-- Main -->
+      <main class="main-content">
+
+        <div class="page-header">
+          <h1>All Users</h1>
+          <p>{{ users().length }} registered users</p>
+        </div>
+
+        <div class="table-card">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of users(); track user.id) {
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <div class="mini-avatar"
+                        [class.mini-avatar--admin]="user.role === 'ADMIN'">
+                        {{ user.fullName.charAt(0).toUpperCase() }}
+                      </div>
+                      <span>{{ user.fullName }}</span>
+                    </div>
+                  </td>
+                  <td class="muted">{{ user.email }}</td>
+                  <td>
+                    <span class="role-badge"
+                      [class.role-badge--admin]="user.role === 'ADMIN'">
+                      {{ user.role }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="status-badge"
+                      [class.status-badge--inactive]="!user.isActive">
+                      {{ user.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td class="muted">
+                    {{ user.createdAt | date: 'mediumDate' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+      </main>
+    </div>
+  }
+
+</div>
