@@ -51,6 +51,29 @@ export interface AccountResponse {
   createdAt: string;
 }
 
+export interface TransactionRequest {
+  type: 'DEBIT' | 'CREDIT';
+  amount: number;
+  description?: string;
+}
+
+export interface TransactionResponse {
+  id: number;
+  type: string;
+  amount: number;
+  description: string;
+  transactionDate: string;
+  balanceAfter: number;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
@@ -111,5 +134,23 @@ export class AuthService {
 
   getAccountById(id: number): Observable<AccountResponse> {
     return this.http.get<AccountResponse>(`${this.accountUrl}/${id}`);
+  }
+
+  createTransaction(accountId: number, data: TransactionRequest): Observable<TransactionResponse> {
+    return this.http.post<TransactionResponse>(
+      `${this.accountUrl}/${accountId}/transactions`,
+      data,
+    );
+  }
+
+  getTransactions(
+    accountId: number,
+    page = 0,
+    size = 10,
+  ): Observable<PageResponse<TransactionResponse>> {
+    return this.http.get<PageResponse<TransactionResponse>>(
+      `${this.accountUrl}/${accountId}/transactions`,
+      { params: { page, size } },
+    );
   }
 }

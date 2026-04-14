@@ -1,0 +1,243 @@
+<div class="page">
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo">N</div>
+        <span class="brand-name">NeoBank</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a routerLink="/dashboard" class="nav-item">
+          <span class="nav-icon">▦</span> Dashboard
+        </a>
+        <a routerLink="/accounts" class="nav-item nav-item--active">
+          <span class="nav-icon">◈</span> Accounts
+        </a>
+        <a routerLink="/profile" class="nav-item">
+          <span class="nav-icon">◎</span> Profile
+        </a>
+        @if (isAdmin()) {
+          <a routerLink="/admin/users" class="nav-item">
+            <span class="nav-icon">⊞</span> All Users
+            <span class="admin-badge">Admin</span>
+          </a>
+        }
+      </nav>
+      <button class="logout-btn" (click)="logout()">Sign out</button>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+
+      <!-- Account summary bar -->
+      @if (account()) {
+        <div class="account-bar">
+          <div class="account-bar-left">
+            <button class="back-btn"
+              (click)="router.navigate(['/accounts'])">
+              ← Back
+            </button>
+            <div>
+              <div class="account-number">
+                {{ account()?.accountNumber }}
+              </div>
+              <span class="account-type-pill"
+                [class.pill--current]="
+                  account()?.accountType === 'CURRENT'">
+                {{ account()?.accountType }}
+              </span>
+            </div>
+          </div>
+          <div class="account-balance">
+            <div class="balance-label">Current balance</div>
+            <div class="balance-amount">
+              ₹{{ account()?.balance | number: '1.2-2' }}
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="page-header">
+        <div>
+          <h1>Transactions</h1>
+          <p>{{ totalElements() }} total transactions</p>
+        </div>
+        <button class="btn-new"
+          (click)="showForm.set(!showForm())">
+          {{ showForm() ? 'Cancel' : '+ New Transaction' }}
+        </button>
+      </div>
+
+      <!-- Banners -->
+      @if (successMsg()) {
+        <div class="success-banner">{{ successMsg() }}</div>
+      }
+      @if (errorMessage()) {
+        <div class="error-banner">{{ errorMessage() }}</div>
+      }
+
+      <!-- Transaction form -->
+      @if (showForm()) {
+        <div class="form-card">
+          <h3>New transaction</h3>
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+            <!-- Type toggle -->
+            <div class="type-toggle">
+              <button type="button"
+                class="toggle-btn"
+                [class.toggle-btn--credit]="type.value === 'CREDIT'"
+                (click)="type.setValue('CREDIT')">
+                ↑ Credit
+              </button>
+              <button type="button"
+                class="toggle-btn"
+                [class.toggle-btn--debit]="type.value === 'DEBIT'"
+                (click)="type.setValue('DEBIT')">
+                ↓ Debit
+              </button>
+            </div>
+
+            <!-- Amount -->
+            <div class="field"
+              [class.field--error]="amount.invalid && amount.touched">
+              <label for="amount">Amount (₹)</label>
+              <input
+                id="amount"
+                type="number"
+                formControlName="amount"
+                placeholder="0.00"
+                min="0.01"
+                step="0.01"
+              />
+              @if (amount.touched && amount.hasError('required')) {
+                <span class="field-error">Amount is required</span>
+              }
+              @if (amount.touched && amount.hasError('min')) {
+                <span class="field-error">
+                  Amount must be greater than zero
+                </span>
+              }
+            </div>
+
+            <!-- Description -->
+            <div class="field">
+              <label for="description">Description (optional)</label>
+              <input
+                id="description"
+                type="text"
+                formControlName="description"
+                placeholder="e.g. Salary, Grocery, Rent..."
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="btn-submit"
+              [class.btn-submit--debit]="type.value === 'DEBIT'"
+              [disabled]="isSubmitting()">
+              @if (isSubmitting()) {
+                <span class="spinner"></span> Processing...
+              } @else {
+                {{ type.value === 'CREDIT' ? '↑ Add Credit' : '↓ Make Debit' }}
+              }
+            </button>
+
+          </form>
+        </div>
+      }
+
+      <!-- Filter & Sort controls -->
+      <div class="controls">
+        <div class="filter-tabs">
+          <button class="filter-tab"
+            [class.filter-tab--active]="filter() === 'ALL'"
+            (click)="filter.set('ALL')">All</button>
+          <button class="filter-tab"
+            [class.filter-tab--active]="filter() === 'CREDIT'"
+            (click)="filter.set('CREDIT')">Credit</button>
+          <button class="filter-tab"
+            [class.filter-tab--active]="filter() === 'DEBIT'"
+            (click)="filter.set('DEBIT')">Debit</button>
+        </div>
+        <button class="sort-btn"
+          (click)="sortAsc.set(!sortAsc())">
+          {{ sortAsc() ? '↑ Oldest first' : '↓ Newest first' }}
+        </button>
+      </div>
+
+      <!-- Transaction list -->
+      @if (isLoading()) {
+        <div class="loading-rows">
+          <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]"></div>
+        </div>
+      } @else if (filteredTransactions.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <h3>No transactions found</h3>
+          <p>{{ filter() !== 'ALL' ? 'No ' + filter() +
+            ' transactions found' : 'Make your first transaction' }}</p>
+        </div>
+      } @else {
+        <div class="transaction-list">
+          @for (tx of filteredTransactions; track tx.id) {
+            <div class="tx-row"
+              [class.tx-row--credit]="tx.type === 'CREDIT'"
+              [class.tx-row--debit]="tx.type === 'DEBIT'">
+
+              <div class="tx-icon"
+                [class.tx-icon--credit]="tx.type === 'CREDIT'"
+                [class.tx-icon--debit]="tx.type === 'DEBIT'">
+                {{ tx.type === 'CREDIT' ? '↑' : '↓' }}
+              </div>
+
+              <div class="tx-details">
+                <div class="tx-description">
+                  {{ tx.description || 'No description' }}
+                </div>
+                <div class="tx-date">
+                  {{ tx.transactionDate | date: 'dd MMM yyyy, hh:mm a' }}
+                </div>
+              </div>
+
+              <div class="tx-right">
+                <div class="tx-amount"
+                  [class.amount--credit]="tx.type === 'CREDIT'"
+                  [class.amount--debit]="tx.type === 'DEBIT'">
+                  {{ tx.type === 'CREDIT' ? '+' : '-' }}
+                  ₹{{ tx.amount | number: '1.2-2' }}
+                </div>
+                <div class="tx-balance">
+                  Bal: ₹{{ tx.balanceAfter | number: '1.2-2' }}
+                </div>
+              </div>
+
+            </div>
+          }
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages() > 1) {
+          <div class="pagination">
+            <button class="page-btn"
+              [disabled]="currentPage() === 0"
+              (click)="goToPage(currentPage() - 1)">
+              ← Prev
+            </button>
+            <span class="page-info">
+              Page {{ currentPage() + 1 }} of {{ totalPages() }}
+            </span>
+            <button class="page-btn"
+              [disabled]="currentPage() >= totalPages() - 1"
+              (click)="goToPage(currentPage() + 1)">
+              Next →
+            </button>
+          </div>
+        }
+      }
+
+    </main>
+  </div>
+</div>
