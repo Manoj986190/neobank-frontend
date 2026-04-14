@@ -1,1 +1,218 @@
-<p>dashboard works!</p>
+<div class="page">
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner-lg"></div>
+      <p>Loading dashboard...</p>
+    </div>
+  } @else {
+
+    <div class="layout">
+
+      <!-- ── Sidebar ──────────────────────────────────── -->
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-logo">N</div>
+          <span class="brand-name">NeoBank</span>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a routerLink="/dashboard"
+            class="nav-item nav-item--active">
+            <span class="nav-icon">▦</span> Dashboard
+          </a>
+          <a routerLink="/accounts" class="nav-item">
+            <span class="nav-icon">◈</span> Accounts
+          </a>
+          <a routerLink="/profile" class="nav-item">
+            <span class="nav-icon">◎</span> Profile
+          </a>
+          @if (isAdmin()) {
+            <a routerLink="/admin/users" class="nav-item">
+              <span class="nav-icon">⊞</span> All Users
+              <span class="admin-badge">Admin</span>
+            </a>
+          }
+        </nav>
+
+        <!-- Sidebar user info -->
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">
+            {{ userName().charAt(0).toUpperCase() }}
+          </div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name">{{ userName() }}</div>
+            <div class="sidebar-user-email">{{ userEmail() }}</div>
+          </div>
+        </div>
+
+        <button class="logout-btn" (click)="logout()">
+          Sign out
+        </button>
+      </aside>
+
+      <!-- ── Main content ─────────────────────────────── -->
+      <main class="main-content">
+
+        <!-- Header -->
+        <div class="dashboard-header">
+          <div>
+            <h1>{{ getGreeting() }}, {{ userName() }} 👋</h1>
+            <p>Here's your financial overview</p>
+          </div>
+          <button class="btn-primary"
+            (click)="router.navigate(['/accounts'])">
+            + New Account
+          </button>
+        </div>
+
+        <!-- ── Summary cards ──────────────────────────── -->
+        <div class="summary-grid">
+
+          <div class="summary-card summary-card--main">
+            <div class="summary-card-label">Total balance</div>
+            <div class="summary-card-amount">
+              ₹{{ totalBalance() | number: '1.2-2' }}
+            </div>
+            <div class="summary-card-sub">
+              Across {{ totalAccounts() }}
+              {{ totalAccounts() === 1 ? 'account' : 'accounts' }}
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-card-label">Savings accounts</div>
+            <div class="summary-card-count">{{ savingsCount() }}</div>
+            <div class="summary-card-sub">Active</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-card-label">Current accounts</div>
+            <div class="summary-card-count">{{ currentCount() }}</div>
+            <div class="summary-card-sub">Active</div>
+          </div>
+
+        </div>
+
+        <!-- ── Quick actions ──────────────────────────── -->
+        <div class="section-title">Quick actions</div>
+        <div class="actions-grid">
+          <button class="action-card"
+            (click)="router.navigate(['/accounts'])">
+            <div class="action-icon">◈</div>
+            <div class="action-label">View accounts</div>
+          </button>
+          <button class="action-card"
+            (click)="router.navigate(['/profile'])">
+            <div class="action-icon">◎</div>
+            <div class="action-label">Edit profile</div>
+          </button>
+          @if (accounts().length > 0) {
+            <button class="action-card"
+              (click)="router.navigate(['/accounts', accounts()[0].id])">
+              <div class="action-icon">↕</div>
+              <div class="action-label">Transactions</div>
+            </button>
+          }
+          @if (isAdmin()) {
+            <button class="action-card action-card--admin"
+              (click)="router.navigate(['/admin/users'])">
+              <div class="action-icon">⊞</div>
+              <div class="action-label">Manage users</div>
+            </button>
+          }
+        </div>
+
+        <!-- ── Account cards ──────────────────────────── -->
+        @if (accounts().length > 0) {
+          <div class="section-title">Your accounts</div>
+          <div class="accounts-row">
+            @for (account of accounts(); track account.id) {
+              <div class="account-mini-card"
+                [class.account-mini-card--current]="
+                  account.accountType === 'CURRENT'"
+                (click)="router.navigate(['/accounts', account.id])">
+
+                <div class="mini-card-top">
+                  <span class="mini-type-badge">
+                    {{ account.accountType }}
+                  </span>
+                  <span class="mini-arrow">→</span>
+                </div>
+
+                <div class="mini-balance">
+                  ₹{{ account.balance | number: '1.2-2' }}
+                </div>
+
+                <div class="mini-number">
+                  {{ account.accountNumber }}
+                </div>
+
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-accounts">
+            <p>No accounts yet.</p>
+            <button class="btn-primary"
+              (click)="router.navigate(['/accounts'])">
+              Create your first account
+            </button>
+          </div>
+        }
+
+        <!-- ── Recent transactions ────────────────────── -->
+        <div class="section-header">
+          <div class="section-title" style="margin-bottom:0">
+            Recent transactions
+          </div>
+          @if (accounts().length > 0) {
+            <button class="link-btn"
+              (click)="router.navigate(['/accounts', accounts()[0].id])">
+              View all →
+            </button>
+          }
+        </div>
+
+        @if (recentTxs().length === 0) {
+          <div class="empty-txs">
+            <p>No transactions yet. Make your first transaction.</p>
+          </div>
+        } @else {
+          <div class="recent-list">
+            @for (tx of recentTxs(); track tx.id) {
+              <div class="recent-row">
+
+                <div class="recent-icon"
+                  [class.recent-icon--credit]="tx.type === 'CREDIT'"
+                  [class.recent-icon--debit]="tx.type === 'DEBIT'">
+                  {{ tx.type === 'CREDIT' ? '↑' : '↓' }}
+                </div>
+
+                <div class="recent-details">
+                  <div class="recent-desc">
+                    {{ tx.description || 'No description' }}
+                  </div>
+                  <div class="recent-meta">
+                    {{ tx.accountNumber }} ·
+                    {{ tx.transactionDate | date: 'dd MMM, hh:mm a' }}
+                  </div>
+                </div>
+
+                <div class="recent-amount"
+                  [class.amount--credit]="tx.type === 'CREDIT'"
+                  [class.amount--debit]="tx.type === 'DEBIT'">
+                  {{ tx.type === 'CREDIT' ? '+' : '-' }}
+                  ₹{{ tx.amount | number: '1.2-2' }}
+                </div>
+
+              </div>
+            }
+          </div>
+        }
+
+      </main>
+    </div>
+  }
+
+</div>

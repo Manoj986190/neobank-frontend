@@ -1,50 +1,109 @@
-import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { AuthService } from '../auth/auth';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import {
+  AuthService,
+  AccountResponse,
+  TransactionResponse
+} from '../auth/auth';
+
+interface RecentTx extends TransactionResponse {
+  accountNumber: string;
+}
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  template: `
-    <div style="padding:40px; font-family: sans-serif;">
-      <h1>Dashboard</h1>
-      <p>Welcome! You are logged in.</p>
-      <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
-        <button
-          (click)="router.navigate(['/accounts'])"
-          style="padding:10px 20px; background:#6c63ff;
-               color:#fff; border:none; border-radius:8px; cursor:pointer;"
-        >
-          My Accounts
-        </button>
-        <button
-          (click)="router.navigate(['/profile'])"
-          style="padding:10px 20px; background:#1a1d2e;
-               color:#fff; border:none; border-radius:8px; cursor:pointer;"
-        >
-          My Profile
-        </button>
-        <button
-          (click)="logout()"
-          style="padding:10px 20px; background:#ef4444;
-               color:#fff; border:none; border-radius:8px; cursor:pointer;"
-        >
-          Logout
-        </button>
-      </div>
-    </div>
-  `,
+  imports: [CommonModule, RouterLink],
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css'
 })
-export class Dashboard {
-  private auth = inject(AuthService);
-  router = inject(Router);
+export class Dashboard implements OnInit {
+
+  private auth   = inject(AuthService);
+  readonly router = inject(Router);
+
+  // ── State signals ─────────────────────────────────────
+  accounts      = signal<AccountResponse[]>([]);
+  recentTxs     = signal<RecentTx[]>([]);
+  isLoading     = signal(true);
+  userName      = signal('');
+  userEmail     = signal('');
+  isAdmin       = signal(false);
+
+  // ── Computed ──────────────────────────────────────────
+  totalBalance = computed(() =>
+    this.accounts().reduce((sum, a) => sum + a.balance, 0));
+
+  totalAccounts = computed(() => this.accounts().length);
+
+  savingsCount = computed(() =>
+    this.accounts().filter(a => a.accountType === 'SAVINGS').length);
+
+  currentCount = computed(() =>
+    this.accounts().filter(a => a.accountType === 'CURRENT').length);
+
+  ngOnInit(): void {
+    this.userName.set(sessionStorage.getItem('email')?.split('@')[0] || 'User');
+    this.userEmail.set(sessionStorage.getItem('email') || '');
+    this.isAdmin.set(this.auth.getRole() === 'ADMIN');
+    this.loadDashboard();
+  }
+
+  loadDashboard(): void {
+    this.isLoading.set(true);
+    this.auth.getAccounts().subscribe({
+      next: (accounts) => {
+        this.accounts.set(accounts);
+        this.isLoading.set(false);
+        this.loadRecentTransactions(accounts);
+      },
+      error: () => {
+        this.auth.logout();
+        this.router.navigate(['/auth/login']);
+      }
+    });
+  }
+
+  loadRecentTransactions(accounts: AccountResponse[]): void {
+    if (accounts.length === 0) return;
+
+    const allTxs: RecentTx[] = [];
+    let completed = 0;
+
+    accounts.forEach(account => {
+      this.auth.getRecentTransactions(account.id, 3).subscribe({
+        next: (page) => {
+          const txs = page.content.map(tx => ({
+            ...tx,
+            accountNumber: account.accountNumber
+          }));
+          allTxs.push(...txs);
+          completed++;
+
+          if (completed === accounts.length) {
+            // Sort all by date desc, take latest 6
+            const sorted = allTxs.sort((a, b) =>
+              new Date(b.transactionDate).getTime() -
+              new Date(a.transactionDate).getTime()
+            ).slice(0, 6);
+            this.recentTxs.set(sorted);
+          }
+        },
+        error: () => { completed++; }
+      });
+    });
+  }
+
+  getGreeting(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
 
   logout(): void {
     this.auth.logout();
     this.router.navigate(['/auth/login']);
-  }
-
-  goToProfile(): void {
-    this.router.navigate(['/profile']);
   }
 }

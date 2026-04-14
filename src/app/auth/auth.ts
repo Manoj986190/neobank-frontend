@@ -153,4 +153,14 @@ export class AuthService {
       { params: { page, size } },
     );
   }
+
+  getRecentTransactions(
+    accountId: number,
+    size = 5,
+  ): Observable<PageResponse<TransactionResponse>> {
+    return this.http.get<PageResponse<TransactionResponse>>(
+      `${this.accountUrl}/${accountId}/transactions`,
+      { params: { page: 0, size } },
+    );
+  }
 }
