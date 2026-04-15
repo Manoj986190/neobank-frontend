@@ -1,7 +1,8 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Sidebar } from '../shared/sidebar/sidebar';
 import {
   AuthService,
   AccountResponse,
@@ -12,7 +13,7 @@ import {
 @Component({
   selector: 'app-transactions',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, Sidebar],
   templateUrl: './transactions.html',
   styleUrl: './transactions.css'
 })

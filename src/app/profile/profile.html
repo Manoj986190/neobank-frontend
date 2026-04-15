@@ -10,31 +10,7 @@
     <div class="profile-layout">
 
       <!-- Sidebar -->
-      <aside class="sidebar">
-        <div class="sidebar-brand">
-          <div class="brand-logo">N</div>
-          <span class="brand-name">NeoBank</span>
-        </div>
-
-        <nav class="sidebar-nav">
-          <a routerLink="/dashboard" class="nav-item">
-            <span class="nav-icon">▦</span> Dashboard
-          </a>
-          <a routerLink="/profile" class="nav-item nav-item--active">
-            <span class="nav-icon">◎</span> Profile
-          </a>
-          @if (isAdmin()) {
-            <a routerLink="/admin/users" class="nav-item nav-item--admin">
-              <span class="nav-icon">⊞</span> All Users
-              <span class="admin-badge">Admin</span>
-            </a>
-          }
-        </nav>
-
-        <button class="logout-btn" (click)="logout()">
-          Sign out
-        </button>
-      </aside>
+      <app-sidebar />
 
       <!-- Main content -->
       <main class="main-content">

@@ -1,20 +1,21 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService, AccountResponse } from '../auth/auth';
+import { Sidebar } from '../shared/sidebar/sidebar';
 
 @Component({
   selector: 'app-accounts',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, Sidebar],
   templateUrl: './accounts.html',
   styleUrl: './accounts.css'
 })
 export class Accounts implements OnInit {
 
   private auth   = inject(AuthService);
-  router = inject(Router);
+  readonly router = inject(Router);
   private fb     = inject(FormBuilder);
 
   accounts     = signal<AccountResponse[]>([]);

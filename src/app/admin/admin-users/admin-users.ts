@@ -1,12 +1,13 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService, UserProfileResponse } from '../../auth/auth';
+import { Sidebar } from '../../shared/sidebar/sidebar';
 
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, Sidebar],
   templateUrl: './admin-users.html',
   styleUrl: './admin-users.css'
 })
