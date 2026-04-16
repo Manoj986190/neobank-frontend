@@ -1,59 +1,89 @@
-# NeobankFrontend
+# NeoBank Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.5.
+Angular SPA for the NeoBank Platform.
+PMIS Internship · Infosys Bhubaneswar DC · Lab 4 & Lab 5
 
-## Development server
+## Tech Stack
+- Angular 21+
+- TypeScript
+- Reactive Forms
+- Signals + Computed
+- JWT HTTP Interceptor
+- Functional Route Guards
 
-To start a local development server, run:
+## Local Setup
 
+### Prerequisites
+- Node.js LTS (20+)
+- Angular CLI 21+
+
+### Install
+```bash
+npm install
+```
+
+### Run
 ```bash
 ng serve
 ```
+Navigate to `http://localhost:4200`
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+### Build
 ```bash
-ng generate component component-name
+ng build --configuration=production
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
+## Environment
+`src/environments/environment.ts`:
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8080/api'
+};
 ```
 
-## Building
+## ✅ Sprint 1 E2E Acceptance Criteria (Sign-off Ready)
+### 🛡 User Flow & Security
+. AC02: Valid JWT storage verified in LocalStorage (DevTools > Application tab).
 
-To build the project run:
+. AC06: Functional Register, Login, and Profile UIs with real-time validation.
 
-```bash
-ng build
+. AC07: AuthGuard implemented: Direct URL access to /dashboard without login redirects to /auth/login.
+
+### 📊 Banking UI Logic
+. AC11: Transaction history is dynamically sorted (Newest first).
+
+. AC12: Dashboard successfully aggregates account balances and lists recent activity.
+
+. AC13: Visual Logic: DEBIT transactions are styled in RED, while CREDIT transactions appear in GREEN.
+
+## Routes
+|       Path      |   Guard   |      Description        |
+|-----------------|-----------|-------------------------|
+|   /auth/login   |     —     | Login page              |
+| /auth/register  |     —     | Registration page       |
+|   /dashboard    | authGuard | Main dashboard          |
+|   /accounts     | authGuard | Account management      |
+| /accounts/:id   | authGuard | Transaction history     |
+|    /profile     | authGuard | User profile            |
+|   /admin/users  | authGuard + adminGuard | Admin only |
+
+## Architecture
+```
+src/app/
+├── auth/          → AuthService + login/register components
+├── dashboard/     → Dashboard page
+├── accounts/      → Account management
+├── transactions/  → Transaction history
+├── profile/       → User profile
+├── admin/         → Admin pages
+├── shared/        → Sidebar component
+└── core/          → Guards + interceptors
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
+## 🌿 Branching Strategy
 ```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
+. main: Sprint sign-off only
+. develop: Integration branch
+. feature/ : Daily feature work
 ```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
