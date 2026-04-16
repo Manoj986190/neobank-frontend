@@ -3,12 +3,12 @@ import { Router} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService, AccountResponse } from '../auth/auth';
-import { Sidebar } from '../shared/sidebar/sidebar';
+
 
 @Component({
   selector: 'app-accounts',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, Sidebar],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './accounts.html',
   styleUrl: './accounts.css'
 })

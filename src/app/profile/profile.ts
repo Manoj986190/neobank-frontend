@@ -3,12 +3,12 @@ import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService, UserProfileResponse } from '../auth/auth';
-import { Sidebar } from '../shared/sidebar/sidebar';
+
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, Sidebar],
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './profile.html',
   styleUrl: './profile.css'
 })

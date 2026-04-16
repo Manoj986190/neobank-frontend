@@ -1,0 +1,13 @@
+@media (max-width: 768px) {
+  .app-layout {
+    display: block; /* Ensures sidebar doesn't push content to the side */
+  }
+  
+  .content-area {
+    padding-top: 80px;  /* Space for the toggle button */
+    padding-left: 20px; /* Nice margin on the left */
+    padding-right: 20px;/* Nice margin on the right */
+    min-height: 100vh;
+    background-color: #f8f9fa; /* Keeps the professional light background */
+  }
+}

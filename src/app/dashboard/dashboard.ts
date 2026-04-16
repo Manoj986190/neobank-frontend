@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { Router} from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Sidebar } from '../shared/sidebar/sidebar';
+
 import {
   AuthService,
   AccountResponse,
@@ -15,7 +15,7 @@ interface RecentTx extends TransactionResponse {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, Sidebar],
+  imports: [CommonModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })

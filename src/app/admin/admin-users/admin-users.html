@@ -1,26 +1,18 @@
 <div class="page">
-
   @if (isLoading()) {
     <div class="loading-state">
       <div class="spinner-lg"></div>
       <p>Loading users...</p>
     </div>
   } @else {
+    <main class="main-content">
+      <div class="page-header">
+        <h1>All Users</h1>
+        <p>{{ users().length }} registered users</p>
+      </div>
 
-    <div class="profile-layout">
-
-      <!-- Sidebar — same as profile -->
-      <app-sidebar />
-
-      <!-- Main -->
-      <main class="main-content">
-
-        <div class="page-header">
-          <h1>All Users</h1>
-          <p>{{ users().length }} registered users</p>
-        </div>
-
-        <div class="table-card">
+      <div class="table-card">
+        <div class="table-responsive">
           <table class="users-table">
             <thead>
               <tr>
@@ -36,8 +28,7 @@
                 <tr>
                   <td>
                     <div class="user-cell">
-                      <div class="mini-avatar"
-                        [class.mini-avatar--admin]="user.role === 'ADMIN'">
+                      <div class="mini-avatar" [class.mini-avatar--admin]="user.role === 'ADMIN'">
                         {{ user.fullName.charAt(0).toUpperCase() }}
                       </div>
                       <span>{{ user.fullName }}</span>
@@ -45,14 +36,12 @@
                   </td>
                   <td class="muted">{{ user.email }}</td>
                   <td>
-                    <span class="role-badge"
-                      [class.role-badge--admin]="user.role === 'ADMIN'">
+                    <span class="role-badge" [class.role-badge--admin]="user.role === 'ADMIN'">
                       {{ user.role }}
                     </span>
                   </td>
                   <td>
-                    <span class="status-badge"
-                      [class.status-badge--inactive]="!user.isActive">
+                    <span class="status-badge" [class.status-badge--inactive]="!user.isActive">
                       {{ user.isActive ? 'Active' : 'Inactive' }}
                     </span>
                   </td>
@@ -64,9 +53,7 @@
             </tbody>
           </table>
         </div>
-
-      </main>
-    </div>
+      </div>
+    </main>
   }
-
 </div>

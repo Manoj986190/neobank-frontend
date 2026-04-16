@@ -20,6 +20,9 @@ export class Sidebar implements OnInit {
   userName  = signal('');
   userEmail = signal('');
   activeRoute = signal('');
+  
+  // --- ADDED FOR MOBILE RESPONSIVENESS ---
+  isMenuOpen = signal(false); 
 
   ngOnInit(): void {
     this.isAdmin.set(this.auth.getRole() === 'ADMIN');
@@ -34,6 +37,15 @@ export class Sidebar implements OnInit {
     ).subscribe((e: any) => {
       this.activeRoute.set(e.urlAfterRedirects);
     });
+  }
+
+  // --- ADDED METHODS FOR MOBILE TOGGLE ---
+  toggleMenu(): void {
+    this.isMenuOpen.update(val => !val);
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen.set(false);
   }
 
   isActive(path: string): boolean {
